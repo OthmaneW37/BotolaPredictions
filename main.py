@@ -108,25 +108,27 @@ def run_inspection():
 
 
 def run_scraper():
-    """Lance le scraper principal (version Démo)"""
+    """Lance le scraper principal (version Selenium)"""
     logger.info("\n" + "=" * 60)
     logger.info("SCRAPING DE LA BOTOLA PRO")
     logger.info("=" * 60)
     
     try:
-        # Utilise la version démo (fonctionne sans navigateur)
-        from botola_scraper_demo import main
-        csv_file = main()
+        from scraper_footystats import run_footystats_scraper
+        csv_file = run_footystats_scraper()
         
         if csv_file:
-            logger.info(f"\nFichier sauvegarde: {csv_file}")
+            logger.info(f"\n✅ Fichier de données sauvegardé: {csv_file}")
             return True
         else:
-            logger.error("Scraping echoue")
+            logger.error("❌ Le scraping a échoué ou n'a retourné aucune donnée.")
             return False
             
+    except ImportError:
+        logger.error("❌ Erreur: Le module 'scraper_footystats' est introuvable.")
+        return False
     except Exception as e:
-        logger.error(f"Erreur: {e}")
+        logger.error(f"❌ Une erreur inattendue est survenue: {e}")
         import traceback
         logger.error(traceback.format_exc())
         return False

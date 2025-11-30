@@ -37,10 +37,7 @@ def initialize_driver() -> uc.Chrome:
     logger.info("Initialisation du driver Chrome avec undetected-chromedriver...")
     try:
         options = uc.ChromeOptions()
-        driver = uc.Chrome(
-            browser_executable_path=r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe",
-            options=options
-        )
+        driver = uc.Chrome(options=options)
         logger.info("Driver Chrome initialisé avec succès.")
         return driver
     except Exception as e:
@@ -103,13 +100,15 @@ def scrape_all_seasons(driver: uc.Chrome, seasons: Dict[str, str]) -> pd.DataFra
 
     return pd.DataFrame(all_matches)
 
-def main():
+def run_footystats_scraper():
+    """Point d'entrée pour le scraping avec FootyStats."""
     logger.info("="*50)
     logger.info("Lancement du Scraper Botola Pro (Mode Automatisé)")
     logger.info("="*50)
 
     driver = initialize_driver()
-    if driver is None: return
+    if driver is None:
+        return None
 
     try:
         final_df = scrape_all_seasons(driver, SEASONS_URLS)
@@ -118,15 +117,20 @@ def main():
             final_df.to_csv(output_file, index=False, encoding='utf-8')
             logger.info(f"\n✅ Scraping terminé avec succès!")
             logger.info(f"Total de {len(final_df)} matchs sauvegardés dans '{output_file}'.")
-            logger.info(final_df.head())
+            return output_file
         else:
-            logger.warning("Aucun match n'a été scrapé. Le fichier CSV est vide.")
+            logger.warning("Aucun match n'a été scrapé.")
+            return None
     except Exception as e:
         logger.error(f"Erreur inattendue: {e}", exc_info=True)
+        return None
     finally:
         if driver:
             logger.info("Fermeture du navigateur.")
             driver.quit()
+
+def main():
+    run_footystats_scraper()
 
 if __name__ == "__main__":
     main()
